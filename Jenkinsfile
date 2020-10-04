@@ -9,7 +9,7 @@ pipeline {
 
     tools {
         nodejs 'NodeJS 11.5.0'
-        gradle "gradle"
+        // gradle "gradle"
     }
     // 指定一个小时的全局执行超时，之后Jenkins将中止Pipeline运行
     options {
@@ -107,45 +107,53 @@ pipeline {
          stage('Deploy') {
             steps {
             echo 'This is a test step'
-         if (env.BRANCH_NAME == 'master') {
-            echo 'I only execute on the master branch'
-        } else if(env.BRANCH_NAME == 'dev-0.8'){
-             echo 'I only execute on the dev branch'
-        }else if(env.BRANCH_NAME == 'sit-0.8'){
-             echo 'I only execute on the sit branch'
-        }else if(env.BRANCH_NAME == 'uat-0.8'){
-             echo 'I only execute on the uat branch'
-        }
-        else {
-            echo 'I execute elsewhere'
-        }
+                script {
+                     if (env.BRANCH_NAME == 'master') {
+                         echo 'I only execute on the master branch'
+                             } else if(env.BRANCH_NAME == 'dev-0.8'){
+                                  echo 'I only execute on the dev branch'
+                     }else if(env.BRANCH_NAME == 'sit-0.8'){
+                     echo 'I only execute on the sit branch'
+                    }else if(env.BRANCH_NAME == 'uat-0.8'){
+                    echo 'I only execute on the uat branch'
+                     }
+                 else {
+                    echo 'I execute elsewhere'
+                        }
+                }
             }
         }   
     }
 
     post {
-        always {
-            deleteDir()
-            script {
-                sh 'echo "post handling"'
-            }
+        // always {
+        //     deleteDir()
+        //     script {
+        //         sh 'echo "post handling"'
+        //     }
 
-            // unsuccessful {
-            //     step([$class:'Mailer',notifyEveryUnstableBuild:true,recipients: 'a972332466@163.com',sendToIndividuals:true])
-            // }
+        //     // unsuccessful {
+        //     //     step([$class:'Mailer',notifyEveryUnstableBuild:true,recipients: 'a972332466@163.com',sendToIndividuals:true])
+        //     // }
+        // }
+      always {
+            echo 'This will always run'
         }
-        // success {
-        //     echo '构建成功'
-        // }
-        // failure {
-        //     echo '构建失败'
-        // }
-        // unstable {
-        //     echo '该任务被标记为不稳定任务'
-        // }
-        // aborted {
-        //     echo '该任务被终止' 
-        // }
+        success {
+        
+
+             mail bcc: '', body: "<b>Example</b><br>Project: ${env.BRANCH_NAME} <br>Build Number: ${env.BRANCH_NAME} <br> URL de build: ${env.BRANCH_NAME}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.BRANCH_NAME}", to: "a72332466@163.com";
+        }
+        failure {
+               echo 'This will run only if successful'
+        }
+        unstable {
+            echo 'This will run only if the run was marked as unstable'
+        }
+        changed {
+            echo 'This will run only if the state of the Pipeline has changed'
+            echo 'For example, if the Pipeline was previously failing but is now successful'
+        }
     }
 
 
